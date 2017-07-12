@@ -167,10 +167,10 @@ function history_civicrm_entityTypes(&$entityTypes) {
  */
 
 function history_civicrm_triggerInfo(&$info, $tableName) {
-  $sourceTable = 'civicrm_membership_log';
+  $sourceTable = 'civicrm_membership';
 
   $sql = "INSERT INTO `civicrm`.`civicrm_membershipperiod` 
-         (`id`, `membership_id`, `start_date`, `end_date`) VALUES (NULL, NEW.membership_id, NEW.start_date, NEW.end_date);";
+         (`id`, `membership_id`, `start_date`, `end_date`) VALUES (NULL, NEW.id, NEW.start_date, NEW.end_date);";
 
   $info[] = array(
       'table' => $sourceTable,
@@ -178,19 +178,23 @@ function history_civicrm_triggerInfo(&$info, $tableName) {
       'event' => 'INSERT',
       'sql' => $sql,
   );
+/*
+  $sql = "update `civicrm`.`civicrm_membershipperiod` set start_date=NEW.start_date, end_date=NEW.end_date 
+        where start_date=OLD.start_date and end_date=OLD.end_date and membership_id=OLD.id;";
+ */
 
-  //$sql = "update `civicrm`.`civicrm_membershipperiod` set start_date=NEW.start_date, end_date=NEW.end_date 
-  //      where start_date=OLD.start_date and end_date=OLD.end_date and membership_id=OLD.id;";
-  $sourceTable = 'civicrm_membership';
+  $sql = "INSERT INTO `civicrm`.`civicrm_membershipperiod` 
+         (`id`, `membership_id`, `start_date`, `end_date`) VALUES (NULL, OLD.id, NEW.start_date, NEW.end_date);";
+
   $info[] = array(
       'table' => $sourceTable,
       'when' => 'AFTER',
       'event' => 'UPDATE',
       'sql' => $sql,
   );
-  $sourceTable = 'civicrm_membership';
+ 
   $sql = "delete from `civicrm`.`civicrm_membershipperiod` where membership_id=OLD.id;";
-
+ $sourceTable = 'civicrm_membership';
   $info[] = array(
       'table' => $sourceTable,
       'when' => 'AFTER',
